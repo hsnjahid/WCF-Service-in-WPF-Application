@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
+﻿using CurrencyTranslater.Server.Algorithm;
+using System;
 using System.ServiceModel;
-using System.Text;
 
 namespace CurrencyTranslater.Server
 {
@@ -20,7 +17,14 @@ namespace CurrencyTranslater.Server
         /// </summary>
         public string ToWord(double number)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return CurrencyRepresenter.RepresentsToDollar(number);
+            }
+            catch (Exception e)
+            {
+                throw new FaultException(e.Message);
+            }
         }
     }
 }
