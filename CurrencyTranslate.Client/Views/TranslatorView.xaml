@@ -1,0 +1,120 @@
+﻿<UserControl x:Class="CurrencyTranslate.Client.Views.TranslatorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:CurrencyTranslate.Client.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <!--Border Style-->
+        <Style TargetType="{x:Type Border}" x:Key="CustomBorder">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ForegroundLightBrush}"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundLightBrush}"/>
+        </Style>
+        <!--Button Style-->
+        <Style TargetType="{x:Type Button}" x:Key="CustomButton" >
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundDarkBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundDarkBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border CornerRadius="2" 
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding Foreground}" 
+                                Margin="{TemplateBinding Padding}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource BackgroundLightBrush}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="{StaticResource BackgroundDisabledBrush}"/>
+                    <Setter Property="Foreground" Value="{StaticResource ForegroundDisabledBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+
+    <Border Padding="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <TextBox x:Name="UserInputTextBox" 
+                         Margin="0,10" Padding="5,0" 
+                         FontWeight="Bold" FontSize="16"   
+                         BorderBrush="{StaticResource ForegroundDarkBrush}"
+                         BorderThickness="2" VerticalAlignment="Center"
+                         Text="{Binding GivenNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="KeyUp">
+                            <i:InvokeCommandAction Command="{Binding ConvertNumberCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TextBox>
+                <TextBlock IsHitTestVisible="False" Margin="0,10" Padding="5,0" FontWeight="Bold" FontSize="16"
+                   Foreground="{StaticResource BackgroundVeryLightBrush}" VerticalAlignment="Center"
+                   Text="Enter a number to translate into words...">
+                    <TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=UserInputTextBox}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+            <!--Translated Output-->
+            <Border Grid.Row="1" Style="{StaticResource CustomBorder}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <TextBlock Margin="10" FontSize="16" TextWrapping="Wrap" FontWeight="SemiBold"
+                     Text="{Binding NumberInWordRepresentation}"/>
+                </ScrollViewer>
+            </Border>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <!--Error Log-->
+                <Border Grid.Column="0" Margin="0,10,0,0">
+                    <Border.Style>
+                        <Style TargetType="{x:Type Border}" BasedOn="{StaticResource CustomBorder}">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=ErrorMsgTextBox}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock x:Name="ErrorMsgTextBox" Margin="0,2" Padding="5,0,0,0" Foreground="{StaticResource ForegroundErrorBrush}" 
+                     TextWrapping="Wrap" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"
+                     Text="{Binding ErrorMessage}" />
+                </Border>
+                <!--Reset-->
+                <Button Grid.Column="1" Margin="10,10,0,0" Content="Reset" Style="{StaticResource CustomButton}"
+                Command="{Binding ResetCommand}" CommandParameter="{Binding GivenNumber}"/>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

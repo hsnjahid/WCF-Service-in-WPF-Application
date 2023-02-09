@@ -1,6 +1,7 @@
 ﻿using CurrencyTranslater.Server.Algorithm;
 using System;
 using System.ServiceModel;
+using System.Threading.Tasks;
 
 namespace CurrencyTranslater.Server
 {
@@ -8,18 +9,38 @@ namespace CurrencyTranslater.Server
     // NOTE: In order to launch WCF Test Client for testing this service, please select TranslateService.svc or TranslateService.svc.cs at the Solution Explorer and start debugging.
 
     /// <summary>
-    /// Implemntation of the translate service. 
+    /// The implemntation of the translate service. 
     /// </summary>
     public sealed class TranslateService : ITranslateService
     {
         /// <summary>
-        /// Translate the requested decimal number into words.
+        /// <inheritdoc/>
         /// </summary>
-        public string ToWord(double number)
+        public async Task<State> GetState()
+        {
+            return await Task.FromResult(State.Ready);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public Task<string[]> GetSupportedLanguages()
+        {
+            var languages = new[] { "de-DE", "en-US", "en-GB" };
+
+            return Task.FromResult(languages);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public Task<string> GetConvertedWord(double number)
         {
             try
             {
-                return CurrencyRepresenter.RepresentsToDollar(number);
+                var result = CurrencyRepresenter.RepresentsToDollar(number);
+
+                return Task.FromResult(result);
             }
             catch (Exception e)
             {

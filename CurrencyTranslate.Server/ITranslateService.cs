@@ -1,20 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
+﻿using System.ServiceModel;
+using System.Threading.Tasks;
 
 namespace CurrencyTranslater.Server
 {
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "ITranslateService" in both code and config file together.
     [ServiceContract]
-    public interface ITranslateService
+    public partial interface ITranslateService
     {
         /// <summary>
-        /// Translate the requested decimal number into words.
+        /// Gets the state of the translate service.
         /// </summary>
         [OperationContract]
-        string ToWord(double number);
+        Task<State> GetState();
+
+        /// <summary>
+        /// Gets all supported languages to translate. 
+        /// </summary>
+        [OperationContract]
+        Task<string[]> GetSupportedLanguages();
+
+        /// <summary>
+        /// Gets the translate word from the requested decimal number.
+        /// </summary>
+        [OperationContract]
+        Task<string> GetConvertedWord(double number);
     }
 }
