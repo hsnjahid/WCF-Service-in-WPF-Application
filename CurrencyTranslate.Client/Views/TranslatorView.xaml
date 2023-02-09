@@ -85,9 +85,12 @@
             </Grid>
             <!--Translated Output-->
             <Border Grid.Row="1" Style="{StaticResource CustomBorder}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                    <TextBlock Margin="10" FontSize="16" TextWrapping="Wrap" FontWeight="SemiBold"
-                     Text="{Binding NumberInWordRepresentation}"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                              HorizontalScrollBarVisibility="Disabled" 
+                              VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <TextBlock Margin="10" FontSize="16" 
+                               TextWrapping="Wrap" FontWeight="SemiBold"
+                               Text="{Binding NumberInWord}"/>
                 </ScrollViewer>
             </Border>
             <Grid Grid.Row="2">
