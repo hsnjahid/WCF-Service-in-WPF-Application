@@ -60,11 +60,11 @@
                          Margin="0,10" Padding="5,0" 
                          FontWeight="Bold" FontSize="16"   
                          BorderBrush="{StaticResource ForegroundDarkBrush}"
-                         BorderThickness="2" VerticalAlignment="Center"
-                         Text="{Binding GivenNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                         BorderThickness="2" VerticalAlignment="Center">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="KeyUp">
-                            <i:InvokeCommandAction Command="{Binding ConvertNumberCommand}"/>
+                            <i:InvokeCommandAction Command="{Binding ConvertNumberCommand}"
+                                                   CommandParameter="{Binding Text, ElementName=UserInputTextBox}"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </TextBox>
@@ -110,9 +110,13 @@
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <TextBlock x:Name="ErrorMsgTextBox" Margin="0,2" Padding="5,0,0,0" Foreground="{StaticResource ForegroundErrorBrush}" 
-                     TextWrapping="Wrap" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"
-                     Text="{Binding ErrorMessage}" />
+                    <TextBlock x:Name="ErrorMsgTextBox" 
+                               Margin="0,2" Padding="5,0,0,0" 
+                               Foreground="{StaticResource ForegroundErrorBrush}"
+                               TextWrapping="Wrap"
+                               FontSize="13" FontWeight="SemiBold"
+                               VerticalAlignment="Center"
+                               Text="{Binding ErrorMessage}" />
                 </Border>
                 <!--Reset-->
                 <Button Grid.Column="1" Margin="10,10,0,0" Content="Reset" Style="{StaticResource CustomButton}"

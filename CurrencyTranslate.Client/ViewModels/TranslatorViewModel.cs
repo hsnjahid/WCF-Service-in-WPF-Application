@@ -19,6 +19,8 @@ namespace CurrencyTranslate.Client.ViewModels
         private string _numberInWord;
         private string _errorMessage;
         private readonly TranslateServiceClient _client;
+        private CultureInfo _selectedCultureCache;
+        private string _givenNumberCache;
 
         #endregion
 
@@ -32,7 +34,7 @@ namespace CurrencyTranslate.Client.ViewModels
         /// <summary>
         /// The command to convert number to word. 
         /// </summary>
-        public ICommand ConvertNumberCommand { get; }
+        public AsyncRelayCommand<string> ConvertNumberCommand { get; }
 
         /// <summary>
         /// The command to update translate language. 
@@ -78,7 +80,7 @@ namespace CurrencyTranslate.Client.ViewModels
             _client = client;
             // init command
             ResetCommand = new RelayCommand(ResetResults);
-            ConvertNumberCommand = new AsyncRelayCommand(OnConvertNumberCommandAsync);
+            ConvertNumberCommand = new AsyncRelayCommand<string>(OnConvertNumberCommandAsync);
             UpdateLanguageCommand = new AsyncRelayCommand<CultureInfo>(OnUpdateLanguageCommandAsync);
         }
 
@@ -95,7 +97,12 @@ namespace CurrencyTranslate.Client.ViewModels
             {
                 await _client.UpdateLanguageAsync(cultureInfo.Name);
 
-                await OnConvertNumberCommandAsync();
+                _selectedCultureCache = cultureInfo;
+
+                if (_givenNumberCache != null)
+                {
+                    await ConvertNumberAsync(_givenNumberCache);
+                }
             }
             catch (FaultException e)
             {
@@ -110,12 +117,27 @@ namespace CurrencyTranslate.Client.ViewModels
         /// <summary>
         /// Convert a number to words.
         /// </summary>
-        private async Task OnConvertNumberCommandAsync()
+        private async Task OnConvertNumberCommandAsync(string number)
         {
-            if (GivenNumber == null)
+            if (_givenNumberCache == number)
                 return;
 
-            if (GivenNumber < 0 || GivenNumber > 999999999.99) // input limit
+            await ConvertNumberAsync(number);
+        }
+
+
+        /// <summary>
+        /// Convert a number to words.
+        /// </summary>
+        private async Task ConvertNumberAsync(string number)
+        {
+            if (!double.TryParse(number, NumberStyles.Float, _selectedCultureCache, out var givenNumber))
+            {
+                ErrorMessage = @"Please input number only !";
+                return;
+            }
+
+            if (givenNumber < 0 || givenNumber > 999999999.99) // input limit
             {
                 ErrorMessage = @"Number can not be negative or greater than 999 999 999,99";
                 return;
@@ -123,7 +145,8 @@ namespace CurrencyTranslate.Client.ViewModels
 
             try
             {
-                NumberInWord = await _client.GetConvertedWordAsync(GivenNumber.Value);
+                NumberInWord = await _client.GetConvertedWordAsync(givenNumber);
+                ErrorMessage = null;
             }
             catch (FaultException e)
             {
@@ -132,6 +155,10 @@ namespace CurrencyTranslate.Client.ViewModels
             catch (Exception e)
             {
                 ErrorMessage = $"Unknown Error: {e.Message}";
+            }
+            finally
+            {
+                _givenNumberCache = number;
             }
         }
 
