@@ -10,12 +10,21 @@ namespace CurrencyTranslate.Client.ViewModels
     /// <summary>
     /// This class represents the view model of a MainWindow.
     /// </summary>
-    public class MainWindowViewModel : ObservableObject
+    public sealed class MainWindowViewModel : ObservableObject
     {
         #region Fields
 
         private readonly TranslateServiceClient _translateClient = new TranslateServiceClient();
         private bool _isBusy = true;
+
+        #endregion
+
+        #region Commands
+
+        /// <summary>
+        /// The command for loading main window.
+        /// </summary>
+        public AsyncRelayCommand LoadingCommand { get; }
 
         #endregion
 
@@ -40,11 +49,6 @@ namespace CurrencyTranslate.Client.ViewModels
         /// </summary>
         public TranslatorViewModel TranslatorViewModel { get; }
 
-        /// <summary>
-        /// The command for loading main window.
-        /// </summary>
-        public AsyncRelayCommand LoadingCommand { get; }  
-
         #endregion
 
         #region Constructors
@@ -62,6 +66,9 @@ namespace CurrencyTranslate.Client.ViewModels
 
         #region Helpers
 
+        /// <summary>
+        /// Invoke when loading command executes.
+        /// </summary>
         private async Task OnLoadingCommandAsync()
         {
             foreach (var language in await _translateClient.GetSupportedLanguagesAsync())

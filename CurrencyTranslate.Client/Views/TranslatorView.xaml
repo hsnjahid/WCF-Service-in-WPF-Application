@@ -68,14 +68,14 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </TextBox>
-                <TextBlock IsHitTestVisible="False" Margin="0,10" Padding="5,0" FontWeight="Bold" FontSize="16"
+                <TextBlock IsHitTestVisible="False" Margin="0,10" Padding="10,0" FontWeight="Bold" FontSize="16"
                    Foreground="{StaticResource BackgroundVeryLightBrush}" VerticalAlignment="Center"
                    Text="Enter a number to translate into words...">
                     <TextBlock.Style>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Text, ElementName=UserInputTextBox}" Value="{x:Null}">
+                                <DataTrigger Binding="{Binding Text, ElementName=UserInputTextBox}" Value="">
                                     <Setter Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -99,12 +99,12 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <!--Error Log-->
-                <Border Grid.Column="0" Margin="0,10,0,0">
+                <Border Grid.Column="0" Margin="0,10,0,0">  
                     <Border.Style>
                         <Style TargetType="{x:Type Border}" BasedOn="{StaticResource CustomBorder}">
                             <Setter Property="Visibility" Value="Visible"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Text, ElementName=ErrorMsgTextBox}" Value="{x:Null}">
+                                <DataTrigger Binding="{Binding Text, ElementName=ErrorMsgTextBox}" Value="">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -119,8 +119,11 @@
                                Text="{Binding ErrorMessage}" />
                 </Border>
                 <!--Reset-->
-                <Button Grid.Column="1" Margin="10,10,0,0" Content="Reset" Style="{StaticResource CustomButton}"
-                Command="{Binding ResetCommand}" CommandParameter="{Binding GivenNumber}"/>
+                <Button Grid.Column="1"
+                        Margin="10,10,0,0" 
+                        Content="Reset"
+                        Style="{StaticResource CustomButton}"
+                        Command="{Binding ResetCommand}"/>
             </Grid>
         </Grid>
     </Border>

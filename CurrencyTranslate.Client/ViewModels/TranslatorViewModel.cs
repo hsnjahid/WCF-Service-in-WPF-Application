@@ -5,7 +5,6 @@ using System;
 using System.Globalization;
 using System.ServiceModel;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace CurrencyTranslate.Client.ViewModels
 {
@@ -29,7 +28,7 @@ namespace CurrencyTranslate.Client.ViewModels
         /// <summary>
         /// The command to clear the window
         /// </summary>
-        public ICommand ResetCommand { get; }
+        public RelayCommand ResetCommand { get; }
 
         /// <summary>
         /// The command to convert number to word. 
@@ -73,13 +72,13 @@ namespace CurrencyTranslate.Client.ViewModels
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TranslatorViewModel"/> class.
+        /// Initializes a new instance of the TranslatorViewModel class.
         /// </summary>  
         public TranslatorViewModel(TranslateServiceClient client)
         {
             _client = client;
             // init command
-            ResetCommand = new RelayCommand(ResetResults);
+            ResetCommand = new RelayCommand(OnResetCommand, CanExecuteReset);
             ConvertNumberCommand = new AsyncRelayCommand<string>(OnConvertNumberCommandAsync);
             UpdateLanguageCommand = new AsyncRelayCommand<CultureInfo>(OnUpdateLanguageCommandAsync);
         }
@@ -89,7 +88,7 @@ namespace CurrencyTranslate.Client.ViewModels
         #region Helpers
 
         /// <summary>
-        /// 
+        ///  Invoke when UpdateLanguageCommand executes.
         /// </summary>
         private async Task OnUpdateLanguageCommandAsync(CultureInfo cultureInfo)
         {
@@ -99,10 +98,7 @@ namespace CurrencyTranslate.Client.ViewModels
 
                 _selectedCultureCache = cultureInfo;
 
-                if (_givenNumberCache != null)
-                {
-                    await ConvertNumberAsync(_givenNumberCache);
-                }
+                await ConvertNumberAsync(_givenNumberCache);
             }
             catch (FaultException e)
             {
@@ -115,7 +111,7 @@ namespace CurrencyTranslate.Client.ViewModels
         }
 
         /// <summary>
-        /// Convert a number to words.
+        /// Invoke when ConvertNumberCommand executes.
         /// </summary>
         private async Task OnConvertNumberCommandAsync(string number)
         {
@@ -125,12 +121,34 @@ namespace CurrencyTranslate.Client.ViewModels
             await ConvertNumberAsync(number);
         }
 
+        /// <summary>
+        /// Invoke when ResetCommand executes.
+        /// </summary>
+        private void OnResetCommand()
+        {
+            // clear input field and error message
+            ErrorMessage = null;
+            NumberInWord = null;
+        }
+
+        private bool CanExecuteReset()
+        {
+            var ok = !(string.IsNullOrEmpty(NumberInWord) && string.IsNullOrEmpty(ErrorMessage));
+            return ok;
+        }
 
         /// <summary>
         /// Convert a number to words.
         /// </summary>
         private async Task ConvertNumberAsync(string number)
         {
+            if (string.IsNullOrWhiteSpace(number))
+            {
+                OnResetCommand();
+                ResetCommand.NotifyCanExecuteChanged();
+                return;
+            }
+
             if (!double.TryParse(number, NumberStyles.Float, _selectedCultureCache, out var givenNumber))
             {
                 ErrorMessage = @"Please input number only !";
@@ -159,19 +177,8 @@ namespace CurrencyTranslate.Client.ViewModels
             finally
             {
                 _givenNumberCache = number;
+                ResetCommand.NotifyCanExecuteChanged();
             }
-        }
-
-        /// <summary>
-        /// On command clear
-        /// </summary>
-        private void ResetResults()
-        {
-            // clear input field and error message
-            GivenNumber = null;
-            OnPropertyChanged(nameof(GivenNumber));
-            ErrorMessage = null;
-            NumberInWord = null;
         }
 
         #endregion
