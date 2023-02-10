@@ -14,6 +14,12 @@ namespace CurrencyTranslater.Server
         Task<State> GetState();
 
         /// <summary>
+        /// Update the language of the translate service.
+        /// </summary>
+        [OperationContract]
+        Task UpdateLanguage(string language);
+
+        /// <summary>
         /// Gets all supported languages to translate. 
         /// </summary>
         [OperationContract]

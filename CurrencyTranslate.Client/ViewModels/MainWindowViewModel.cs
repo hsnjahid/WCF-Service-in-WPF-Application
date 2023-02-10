@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CurrencyTranslate.Client.Service;
+using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.ServiceModel;
 using System.Threading.Tasks;
 
 namespace CurrencyTranslate.Client.ViewModels
@@ -28,11 +30,6 @@ namespace CurrencyTranslate.Client.ViewModels
         public ObservableCollection<CultureInfo> SupportedLanguages { get; } = new ObservableCollection<CultureInfo>();
 
         /// <summary>
-        /// Gets or sets the selected application laguage. 
-        /// </summary>
-        public CultureInfo SelectedLanguage { get; set; }
-
-        /// <summary>
         /// Returns a value which indicates the server is ready or not.
         /// </summary>
         public bool IsBusy
@@ -49,7 +46,7 @@ namespace CurrencyTranslate.Client.ViewModels
         /// <summary>
         /// The command for loading main window.
         /// </summary>
-        public AsyncRelayCommand LoadingCommand { get; }
+        public AsyncRelayCommand LoadingCommand { get; }  
 
         #endregion
 
@@ -75,11 +72,6 @@ namespace CurrencyTranslate.Client.ViewModels
                 SupportedLanguages.Add(new CultureInfo(language));
             }
 
-            if (SupportedLanguages.Any())
-            {
-                SelectedLanguage = SupportedLanguages.FirstOrDefault();
-                OnPropertyChanged(nameof(SelectedLanguage));
-            }
             var state = await _translateClient.GetStateAsync();
 
             if (state == State.Ready)

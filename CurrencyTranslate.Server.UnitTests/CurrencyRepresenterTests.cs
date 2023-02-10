@@ -5,26 +5,35 @@ namespace CurrencyTranslate.Server.UnitTests
 {
     public class CurrencyRepresenterTests
     {
-        [Test]
-        public void TestRepresentsToDollar()
+        private CurrencyRepresenter _currencyRepresenter;
+
+        [SetUp]
+        public void Setup()
         {
-            var output = CurrencyRepresenter.RepresentsToDollar(0);
-            Assert.AreEqual(output, "zero dollars");
+            _currencyRepresenter = new CurrencyRepresenter();
+            _currencyRepresenter.UpdateLanguage("en-US");
+        }
 
-            output = CurrencyRepresenter.RepresentsToDollar(1);
-            Assert.AreEqual(output, "one dollar");
+        [Test]
+        public void WhenCultureIsUsEnglishThenRepresentsToDollarSucceeds()
+        {
+            var output = _currencyRepresenter.GetWord(0);
+            Assert.AreEqual(output, "zero US Dollars");
 
-            output = CurrencyRepresenter.RepresentsToDollar(25.1);
-            Assert.AreEqual(output, "twenty-five dollars and ten cents");
+            output = _currencyRepresenter.GetWord(1);
+            Assert.AreEqual(output, "one US Dollar");
 
-            output = CurrencyRepresenter.RepresentsToDollar(0.01);
-            Assert.AreEqual(output, "zero dollars and one cent");
+            output = _currencyRepresenter.GetWord(25.1);
+            Assert.AreEqual(output, "twenty-five US Dollars and ten cents");
 
-            output = CurrencyRepresenter.RepresentsToDollar(45100);
-            Assert.AreEqual(output, "forty-five thousand one hundred dollars");
+            output = _currencyRepresenter.GetWord(0.01);
+            Assert.AreEqual(output, "zero US Dollars and one cent");
 
-            output = CurrencyRepresenter.RepresentsToDollar(999999999.99);
-            Assert.AreEqual(output, "nine hundred ninety-nine million nine hundred ninety-nine thousand nine hundred ninety-nine dollars and ninety-nine cents");
+            output = _currencyRepresenter.GetWord(45100);
+            Assert.AreEqual(output, "forty-five thousand one hundred US Dollars");
+
+            output = _currencyRepresenter.GetWord(999999999.99);
+            Assert.AreEqual(output, "nine hundred ninety-nine million nine hundred ninety-nine thousand nine hundred ninety-nine US Dollars and ninety-nine cents");
         }
     }
 }

@@ -9,16 +9,24 @@ namespace CurrencyTranslater.Server
     // NOTE: In order to launch WCF Test Client for testing this service, please select TranslateService.svc or TranslateService.svc.cs at the Solution Explorer and start debugging.
 
     /// <summary>
-    /// The implemntation of the translate service. 
+    /// The implementation of the translate service. 
     /// </summary>
     public sealed class TranslateService : ITranslateService
     {
+        #region Fields
+
+        private readonly CurrencyRepresenter _currencyRepresenter = new CurrencyRepresenter();
+
+        #endregion
+
+        #region Interface-Implementation
+
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public async Task<State> GetState()
+        public Task<State> GetState()
         {
-            return await Task.FromResult(State.Ready);
+            return Task.FromResult(State.Ready);
         }
 
         /// <summary>
@@ -26,7 +34,7 @@ namespace CurrencyTranslater.Server
         /// </summary>
         public Task<string[]> GetSupportedLanguages()
         {
-            var languages = new[] { "de-DE", "en-US", "en-GB" };
+            var languages = _currencyRepresenter.GetSupportedCultures();
 
             return Task.FromResult(languages);
         }
@@ -38,14 +46,31 @@ namespace CurrencyTranslater.Server
         {
             try
             {
-                var result = CurrencyRepresenter.RepresentsToDollar(number);
+                var result = _currencyRepresenter.GetWord(number);
 
                 return Task.FromResult(result);
             }
             catch (Exception e)
             {
-                throw new FaultException(e.Message);
+                return Task.FromException<string>(new FaultException(e.Message));
             }
         }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public Task UpdateLanguage(string language)
+        {
+            if (_currencyRepresenter.UpdateLanguage(language))
+            {
+                return Task.CompletedTask;
+            }
+            else
+            {
+                return Task.FromException(new FaultException($"Does not support language {language}"));
+            }
+        }
+
+        #endregion
     }
 }

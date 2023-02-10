@@ -17,7 +17,8 @@
     </Window.DataContext>
 
     <DockPanel  Background="{StaticResource BackgroundVeryLightBrush}">
-        <ComboBox DockPanel.Dock="Top"                  
+        <ComboBox x:Name="LanguageSelector"
+                  DockPanel.Dock="Top"                  
                   VerticalAlignment="Top" HorizontalAlignment="Right"
                   Margin="0,10,10,0" MinWidth="150" Height="30" 
                   BorderBrush="{StaticResource ForegroundVeryDarkBrush}" BorderThickness="2" 
@@ -26,8 +27,14 @@
                   Background="{StaticResource BackgroundDarkBrush}"
                   Foreground="{StaticResource ForegroundDarkBrush}"
                   ItemsSource="{Binding SupportedLanguages}"
-                  SelectedValue="{Binding SelectedLanguage}"
-                  DisplayMemberPath="DisplayName"/>
+                  DisplayMemberPath="DisplayName">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding TranslatorViewModel.UpdateLanguageCommand}"
+                                           CommandParameter="{Binding SelectedValue, ElementName=LanguageSelector}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </ComboBox>
         <Grid>
             <Grid.Resources>
                 <converters:BooleanToVisibilityInverter x:Key="BooleanToVisibilityInverter"/>

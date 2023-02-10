@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.Input;
 using CurrencyTranslate.Client.Service;
 using System;
+using System.Globalization;
+using System.ServiceModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -31,6 +33,11 @@ namespace CurrencyTranslate.Client.ViewModels
         /// The command to convert number to word. 
         /// </summary>
         public ICommand ConvertNumberCommand { get; }
+
+        /// <summary>
+        /// The command to update translate language. 
+        /// </summary>
+        public AsyncRelayCommand<CultureInfo> UpdateLanguageCommand { get; }
 
         #endregion
 
@@ -71,7 +78,8 @@ namespace CurrencyTranslate.Client.ViewModels
             _client = client;
             // init command
             ResetCommand = new RelayCommand(ResetResults);
-            ConvertNumberCommand = new AsyncRelayCommand(ConvertNumberAsync);
+            ConvertNumberCommand = new AsyncRelayCommand(OnConvertNumberCommandAsync);
+            UpdateLanguageCommand = new AsyncRelayCommand<CultureInfo>(OnUpdateLanguageCommandAsync);
         }
 
         #endregion
@@ -79,9 +87,30 @@ namespace CurrencyTranslate.Client.ViewModels
         #region Helpers
 
         /// <summary>
+        /// 
+        /// </summary>
+        private async Task OnUpdateLanguageCommandAsync(CultureInfo cultureInfo)
+        {
+            try
+            {
+                await _client.UpdateLanguageAsync(cultureInfo.Name);
+
+                await OnConvertNumberCommandAsync();
+            }
+            catch (FaultException e)
+            {
+                ErrorMessage = $"Error occured in Server: {e.Message}";
+            }
+            catch (Exception e)
+            {
+                ErrorMessage = $"Unknown Error: {e.Message}";
+            }
+        }
+
+        /// <summary>
         /// Convert a number to words.
         /// </summary>
-        private async Task ConvertNumberAsync()
+        private async Task OnConvertNumberCommandAsync()
         {
             if (GivenNumber == null)
                 return;
@@ -96,9 +125,13 @@ namespace CurrencyTranslate.Client.ViewModels
             {
                 NumberInWord = await _client.GetConvertedWordAsync(GivenNumber.Value);
             }
+            catch (FaultException e)
+            {
+                ErrorMessage = $"Error occured in Server: {e.Message}";
+            }
             catch (Exception e)
             {
-                ErrorMessage = $"Converting number failed : {e.Message}";
+                ErrorMessage = $"Unknown Error: {e.Message}";
             }
         }
 
