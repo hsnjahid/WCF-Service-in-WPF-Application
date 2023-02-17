@@ -42,7 +42,7 @@ namespace CurrencyTranslater.Server
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public Task<string> GetConvertedWord(double number)
+        public Task<string> GetConvertedWord(string number)
         {
             try
             {

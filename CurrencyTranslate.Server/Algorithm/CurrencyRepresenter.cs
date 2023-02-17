@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace CurrencyTranslater.Server.Algorithm
 {
@@ -27,7 +26,7 @@ namespace CurrencyTranslater.Server.Algorithm
         #region Methods
 
         /// <summary>
-        /// Gets the supported culture names.
+        /// Gets the name of the supported culture.
         /// </summary>
         public string[] GetSupportedCultures()
         {
@@ -39,6 +38,7 @@ namespace CurrencyTranslater.Server.Algorithm
         /// <summary>
         /// Update the name of the culture to be translated.
         /// </summary>
+        /// <returns>False when the the language is not supported</returns>
         public bool UpdateLanguage(string language)
         {
             lock (_cultureInfoLock)
@@ -57,7 +57,7 @@ namespace CurrencyTranslater.Server.Algorithm
         /// <summary>
         /// Represents into verbal words from numbers.
         /// </summary>
-        public string GetWord(double number)
+        public string GetWord(string number)
         {
             if (_cultureName == null)
             {
@@ -66,24 +66,26 @@ namespace CurrencyTranslater.Server.Algorithm
 
             if (!_supportedCultures.TryGetValue(_cultureName, out var cultureInfo))
             {
-                throw new InvalidOperationException($"Does not support translate service for the calture {_cultureName}");
+                throw new InvalidOperationException($"Does not support translate service for the language {_cultureName}");
             }
 
-            var wholeNumberPart = (int)number; // whole number part
+            if (!double.TryParse(number, NumberStyles.Number, cultureInfo, out var givenNumber))
+            {
+                throw new InvalidOperationException("Supports number only");
+            }
+
+            var wholeNumberPart = (int)givenNumber; // whole number part
             var wholeNumberPartToWord = NumberTranslator.Translate(wholeNumberPart);
             var decimalPartToWords = string.Empty;
 
-            // covert force-fully
-            var decimalNumbur = number.ToString(cultureInfo);
-
             // gets the index of decimal point
-            var decimalPointIndex = decimalNumbur.IndexOf(cultureInfo.NumberFormat.CurrencyDecimalSeparator);
+            var decimalPointIndex = number.IndexOf(cultureInfo.NumberFormat.CurrencyDecimalSeparator);
          
             var currency = GetCurrency(cultureInfo);
 
             if (decimalPointIndex > 0)
             {
-                var decimalPart = decimalNumbur.Substring(decimalPointIndex);
+                var decimalPart = number.Substring(decimalPointIndex);
                 double.TryParse(decimalPart, NumberStyles.Number, cultureInfo, out double decimalNumberPart);
 
                 int decimalPartInteger = (int)(decimalNumberPart * 100);
@@ -103,11 +105,14 @@ namespace CurrencyTranslater.Server.Algorithm
             return result.Trim();
         }
 
+        /// <summary>
+        /// Gets the name of the currency from the given CaltureInfo.
+        /// </summary>
         private (string WholePart, string DecimalPart) GetCurrency(CultureInfo cultureInfo)
         {
             var currency = new RegionInfo(cultureInfo.LCID).CurrencyEnglishName;
 
-            return (currency, "cent");
+            return (currency, "Cent");
         }
 
         #endregion

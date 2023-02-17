@@ -15,25 +15,25 @@ namespace CurrencyTranslate.Server.UnitTests
         }
 
         [Test]
-        public void WhenCultureIsUsEnglishThenRepresentsToDollarSucceeds()
+        public void WhenCultureIsUsEnglishThenTranslateToWordSucceeds()
         {
-            var output = _currencyRepresenter.GetWord(0);
+            var output = _currencyRepresenter.GetWord("0");
             Assert.AreEqual(output, "zero US Dollars");
 
-            output = _currencyRepresenter.GetWord(1);
+            output = _currencyRepresenter.GetWord("1");
             Assert.AreEqual(output, "one US Dollar");
 
-            output = _currencyRepresenter.GetWord(25.1);
-            Assert.AreEqual(output, "twenty-five US Dollars and ten cents");
+            output = _currencyRepresenter.GetWord("25.1");
+            Assert.AreEqual(output, "twenty-five US Dollars and ten Cents");
 
-            output = _currencyRepresenter.GetWord(0.01);
-            Assert.AreEqual(output, "zero US Dollars and one cent");
+            output = _currencyRepresenter.GetWord("0.01");
+            Assert.AreEqual(output, "zero US Dollars and one Cent");
 
-            output = _currencyRepresenter.GetWord(45100);
+            output = _currencyRepresenter.GetWord("45100");
             Assert.AreEqual(output, "forty-five thousand one hundred US Dollars");
 
-            output = _currencyRepresenter.GetWord(999999999.99);
-            Assert.AreEqual(output, "nine hundred ninety-nine million nine hundred ninety-nine thousand nine hundred ninety-nine US Dollars and ninety-nine cents");
+            output = _currencyRepresenter.GetWord("999999999.99");
+            Assert.AreEqual(output, "nine hundred ninety-nine million nine hundred ninety-nine thousand nine hundred ninety-nine US Dollars and ninety-nine Cents");
         }
     }
 }

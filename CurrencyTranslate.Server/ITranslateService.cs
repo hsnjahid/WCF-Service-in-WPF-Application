@@ -26,9 +26,9 @@ namespace CurrencyTranslater.Server
         Task<string[]> GetSupportedLanguages();
 
         /// <summary>
-        /// Gets the translate word from the requested decimal number.
+        /// Gets the translate word from the requested number.
         /// </summary>
         [OperationContract]
-        Task<string> GetConvertedWord(double number);
+        Task<string> GetConvertedWord(string number);
     }
 }
