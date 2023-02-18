@@ -15,7 +15,8 @@ namespace CurrencyTranslater.Server
     {
         #region Fields
 
-        private readonly CurrencyRepresenter _currencyRepresenter = new CurrencyRepresenter();
+        private readonly CurrencyRepresenter _currencyRepresenter = 
+            new CurrencyRepresenter(new LanguageProvider());
 
         #endregion
 
@@ -67,7 +68,7 @@ namespace CurrencyTranslater.Server
             }
             else
             {
-                return Task.FromException(new FaultException($"Does not support language {language}"));
+                return Task.FromException(new FaultException($"Does not support translate service for the language {language}"));
             }
         }
 

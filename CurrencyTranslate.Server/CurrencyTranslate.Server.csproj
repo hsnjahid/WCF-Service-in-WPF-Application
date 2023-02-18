@@ -65,7 +65,9 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\LanguageProvider.cs" />
     <Compile Include="Algorithm\CurrencyRepresenter.cs" />
+    <Compile Include="Algorithm\ILanguageProvider.cs" />
     <Compile Include="Algorithm\NumberTranslator.cs" />
     <Compile Include="ITranslateService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

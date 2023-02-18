@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace CurrencyTranslater.Server.Algorithm
 {
@@ -13,15 +11,19 @@ namespace CurrencyTranslater.Server.Algorithm
         #region Fields
 
         private readonly object _cultureInfoLock = new object();
-        private static string _cultureName;
-        private static Dictionary<string, CultureInfo> _supportedCultures = new Dictionary<string, CultureInfo>
-        {
-            {"en-US", new CultureInfo("en-US") },
-            {"en-GB", new CultureInfo("en-GB") },
-            {"de-DE", new CultureInfo("de-DE") },
-        };
+        private readonly ILanguageProvider _languageProvider;
 
         #endregion
+
+        #region Constructors
+
+        public CurrencyRepresenter(ILanguageProvider languageProvider)
+        {
+            _languageProvider = languageProvider;
+        }
+
+        #endregion
+
 
         #region Methods
 
@@ -30,7 +32,7 @@ namespace CurrencyTranslater.Server.Algorithm
         /// </summary>
         public string[] GetSupportedCultures()
         {
-            var cultureNames = _supportedCultures.Select(culture => culture.Value.Name).ToArray();
+            var cultureNames = _languageProvider.GetLanguages();
 
             return cultureNames;
         }
@@ -43,13 +45,12 @@ namespace CurrencyTranslater.Server.Algorithm
         {
             lock (_cultureInfoLock)
             {
-                if (_cultureName == language)
-                    return true;
-
-                if (!_supportedCultures.ContainsKey(language))
+                if (!_languageProvider.IsSupported(language))
                     return false;
+
                 // update 
-                _cultureName = language;
+                _languageProvider.UpdateActiveLanguage(language);
+
                 return true;
             }
         }
@@ -59,19 +60,16 @@ namespace CurrencyTranslater.Server.Algorithm
         /// </summary>
         public string GetWord(string number)
         {
-            if (_cultureName == null)
+            if (string.IsNullOrEmpty(_languageProvider.GetActiveLanguage()))
             {
                 throw new InvalidOperationException($"The target language is not set");
             }
 
-            if (!_supportedCultures.TryGetValue(_cultureName, out var cultureInfo))
-            {
-                throw new InvalidOperationException($"Does not support translate service for the language {_cultureName}");
-            }
-
+            var cultureInfo = _languageProvider.GetActiveCultureInfo();
+ 
             if (!double.TryParse(number, NumberStyles.Number, cultureInfo, out var givenNumber))
             {
-                throw new InvalidOperationException("Supports number only");
+                throw new NotSupportedException("Supports number only");
             }
 
             var wholeNumberPart = (int)givenNumber; // whole number part
@@ -80,7 +78,7 @@ namespace CurrencyTranslater.Server.Algorithm
 
             // gets the index of decimal point
             var decimalPointIndex = number.IndexOf(cultureInfo.NumberFormat.CurrencyDecimalSeparator);
-         
+
             var currency = GetCurrency(cultureInfo);
 
             if (decimalPointIndex > 0)
