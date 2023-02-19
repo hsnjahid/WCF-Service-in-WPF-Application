@@ -1,6 +1,7 @@
 ﻿using CurrencyTranslater.Server.Algorithm;
 using System;
 using System.ServiceModel;
+using System.Threading.Tasks;
 
 namespace CurrencyTranslater.Server
 {
@@ -8,23 +9,69 @@ namespace CurrencyTranslater.Server
     // NOTE: In order to launch WCF Test Client for testing this service, please select TranslateService.svc or TranslateService.svc.cs at the Solution Explorer and start debugging.
 
     /// <summary>
-    /// Implemntation of the translate service. 
+    /// The implementation of the translate service. 
     /// </summary>
     public sealed class TranslateService : ITranslateService
     {
+        #region Fields
+
+        private readonly CurrencyRepresenter _currencyRepresenter = 
+            new CurrencyRepresenter(new LanguageProvider());
+
+        #endregion
+
+        #region Interface-Implementation
+
         /// <summary>
-        /// Translate the requested decimal number into words.
+        /// <inheritdoc/>
         /// </summary>
-        public string ToWord(double number)
+        public Task<State> GetState()
+        {
+            return Task.FromResult(State.Ready);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public Task<string[]> GetSupportedLanguages()
+        {
+            var languages = _currencyRepresenter.GetSupportedCultures();
+
+            return Task.FromResult(languages);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public Task<string> GetConvertedWord(string number)
         {
             try
             {
-                return CurrencyRepresenter.RepresentsToDollar(number);
+                var result = _currencyRepresenter.GetWord(number);
+
+                return Task.FromResult(result);
             }
             catch (Exception e)
             {
-                throw new FaultException(e.Message);
+                return Task.FromException<string>(new FaultException(e.Message));
             }
         }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public Task UpdateLanguage(string language)
+        {
+            if (_currencyRepresenter.UpdateLanguage(language))
+            {
+                return Task.CompletedTask;
+            }
+            else
+            {
+                return Task.FromException(new FaultException($"Does not support translate service for the language {language}"));
+            }
+        }
+
+        #endregion
     }
 }
