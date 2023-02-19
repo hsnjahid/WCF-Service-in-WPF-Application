@@ -13,7 +13,7 @@ namespace CurrencyTranslater.Server.Algorithm
             {"de-DE", new CultureInfo("de-DE") },
         };
 
-        private string _activeLanguageName;
+        private static string _activeLanguageName;
 
         /// <summary>
         /// <inheritdoc/>
